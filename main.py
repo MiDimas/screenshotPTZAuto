@@ -11,6 +11,7 @@
 #         <type>objects</type>
 #         <name>Channels</name>
 #     </parameter>
+# SELECTED_CHANNELS = GLOBALS.get("SELECTED_CHANNELS", '')
 # this params will use for many channels at a server
 """
 <parameters>
@@ -329,7 +330,6 @@ CYCLES_SCREENS = GLOBALS.get("CYCLES_SCREENS", 1)
 PER_HOURS_SCREENS = GLOBALS.get("PER_HOURS_SCREENS", 1)
 per_time = PER_HOURS_SCREENS * 3600
 
-SELECTED_CHANNELS = GLOBALS.get("SELECTED_CHANNELS", '')
 
 from shot_saver import ShotSaver
 import time
