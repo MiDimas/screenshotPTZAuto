@@ -15,7 +15,7 @@
 # this params will use for many channels at a server
 """
 <parameters>
-    <company>AATrubilin & DMMiskevich</company>
+    <company>AATrubilinAndDMMiskevich</company>
     <title>PTZScreenshotsAutomation</title>
     <version>1.0</version>
 
@@ -206,9 +206,7 @@ resources = {
         SKKPjmThILYUvpYi10LQWopX1rib/kZZJMoQSIc80ueZrygP/o29BFkh+EdC9OJdTws4ZmRo
         UhiVFe9hG6t88LZLFo4RW6zq5BbxTVuUh2jD+rrieAXp4PBLVInH7wk9eW/tMFFsDabWc+J/
         LPI3erK/BHIl+KJ9Ww1d20A8lXKUWQtUXFeSnhUTKtl1Y1tGCVnZ/Ca38aPlPWcooCiXxSdq
-
-Сергей, [14.08.2024 17:48]
-JXvy3pb0xHo4MVsQyNpRV2q/BPJIT+u/SpZLOSHWs0o6tnhJ12orWLEokH+uSByyPX19vmiw
+        JXvy3pb0xHo4MVsQyNpRV2q/BPJIT+u/SpZLOSHWs0o6tnhJ12orWLEokH+uSByyPX19vmiw
         FX4JsdBK0q1we6zEy3z/K422O8a3p6aqjVCxqoWEti3w84U1CXw3EcoTcU8emAg2cwyZ5uuc
         kgckptQ2xYkFVPcIJ8ZaZSuizwdYYT4hEfeI+HUAkItn+WhNGr6JFku0jH4VFELAOBeqDiXH
         6bsXJ+qIm2mwP1HGOQaCh3fYQnAmhWAZCIHYqtXfmqghB++UPqUknl70yeleESRh/1Z4tedq
@@ -260,9 +258,7 @@ JXvy3pb0xHo4MVsQyNpRV2q/BPJIT+u/SpZLOSHWs0o6tnhJ12orWLEokH+uSByyPX19vmiw
         Wt23Is2cF+24sVBH/uQi8EnUU5y6K6ayW2+yYTxK7B52kvsZXjL0vMLXEE5LwHS55FGKbx+v
         cM6aaeapMWgPnTax3ipXClFLlDXjmKkO8w9YgNdg/bI5n9ESQs8LrfXWr1iVkxkmmhnMZt5q
         TIBAUDLHegEL81LhgjSccS6B4dacjdbgh2AbP8qNWI5hSWq9kOS58Zm6bCnITjYWVtrLAe+I
-
-Сергей, [14.08.2024 17:48]
-HC6P6t7mR26XnJR0bawbZA2tADwAfVWSyDf7pUcM92NppC0AWFf4WW8YzfIIpxYB2OdPo4p9
+        HC6P6t7mR26XnJR0bawbZA2tADwAfVWSyDf7pUcM92NppC0AWFf4WW8YzfIIpxYB2OdPo4p9
         8v11ZTmovRcLkiHgLHctYwBlzPat/UIwD3P5CjzjUEJ+Nrx0MrolD7cd74G79VB9B3JgYxWI
         TqnGO0wwSFLUWkuJXhGkj7Uo89QQttwn9FZKuiNXt5ryrljMqtIlXk9+euMsmabOJlSQJurp
         vwUEbTD6yklKv+3BL63soNpWpZF6pQ9r2LL/p6m/UqtvmmcUqem5vLM37KwUz1J4ufYXXago
@@ -385,7 +381,7 @@ class PTZAutomation(object):
         self.get_timeout = lambda: 30
         self.default_preset = 1
         self.ad_timeout = 15
-        self.patrol_path = cycle([1, 2, 3, 4])
+        self.patrol_path = [1, 2, 3, 4]
         self._already_in_preset = False
         self.ss = ShotSaver()
         self.color_now = 'Green'
@@ -480,10 +476,11 @@ class PTZAutomation(object):
         pass
 
     def color_change_handler(self, sched):
+        assert sched.color in self.__workmode, "Activate the schedule"
         self.color_now = sched.color
         work = self.__workmode[sched.color]
         self.__current_work_mode = work.__name__
-        logger.info("Start %s mode %s", sched.color, self.current_work_mode)
+        logger.info("Start %s mode %s", sched.color, self.__current_work_mode)
         work()
 
     def run_default(self):
