@@ -387,9 +387,10 @@ class PTZAutomation(object):
         self.color_now = 'Green'
 
         self.len_path = 0
-        self.passed_path = 0
-        self.cycles_passed = 0
+        self.__cycles_passed = 0
         self.last_time_change = 0
+
+        self.__current_index_preset = 0
 
         self.__workmode = {
             "Green": self.patrol,
@@ -402,11 +403,24 @@ class PTZAutomation(object):
 
     @property
     def patrol_path(self):
-        return next(self.__patrol_path)
+        self.current_index_preset += 1
+        return self.current_preset
 
     @property
     def already_in_preset(self):
         return self._already_in_preset
+
+    @property
+    def current_preset(self):
+        return self.__patrol_path[self.current_index_preset]
+
+    @property
+    def cycles_passed(self):
+        return self.__cycles_passed
+
+    @property
+    def current_index_preset(self):
+        return self.__current_index_preset
 
     @already_in_preset.setter
     def already_in_preset(self, value):
@@ -418,8 +432,20 @@ class PTZAutomation(object):
             assert value, "Patrol path is empty"
             value = [int(v) for v in value.split(",")]
         self.len_path = len(value)
-        self.__patrol_path = cycle(value)
+        # self.__patrol_path = cycle(value)
         logger.debug("Set new patrol path: cycle(%r)", value)
+
+    @cycles_passed.setter
+    def cycles_passed(self, value):
+        self.__cycles_passed = value
+
+    @current_index_preset.setter
+    def current_index_preset(self, value):
+        if value >= self.len_path - 1:
+            self.__current_index_preset = 0
+            self.cycles_passed += 1
+        else:
+            self.__current_index_preset = value
 
     def set_mode(self, color, mode):
         mode = mode.lower()
@@ -439,7 +465,7 @@ class PTZAutomation(object):
         logger.debug("%s go to %s", channel.name, preset)
         self.channel.ptz_preset(preset)
         if self.color_now == 'Red':
-            if self.cycles_passed > CYCLES_SCREENS and time.time() - self.last_time_change > per_time:
+            if self.cycles_passed >= CYCLES_SCREENS and time.time() - self.last_time_change > per_time:
                 self.cycles_passed = 0
             if self.cycles_passed < CYCLES_SCREENS:
                 self.last_time_change = time.time()
@@ -448,11 +474,6 @@ class PTZAutomation(object):
     def patrol(self):
         if self.__current_work_mode == "patrol":
             if time.time() - self.__last_ad_activity_ts > self.ad_timeout:
-                if self.color_now == 'Red':
-                    if self.passed_path >= self.len_path:
-                        self.passed_path = 0
-                        self.cycles_passed += 1
-                    self.passed_path += 1
                 self.set_preset(self.patrol_path)
                 timeout = self.get_timeout()
                 logger.debug("Go next preset after %s", timeout)
@@ -477,6 +498,8 @@ class PTZAutomation(object):
 
     def color_change_handler(self, sched):
         assert sched.color in self.__workmode, "Activate the schedule"
+        self.current_index_preset = 0
+        self.cycles_passed = 0
         self.color_now = sched.color
         work = self.__workmode[sched.color]
         self.__current_work_mode = work.__name__
