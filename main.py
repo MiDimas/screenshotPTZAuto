@@ -389,6 +389,7 @@ class PTZAutomation(object):
         self.len_path = 0
         self.__cycles_passed = 0
         self.last_time_change = 0
+        self._cycle_up = False
 
         self.__current_index_preset = 0
 
@@ -443,9 +444,12 @@ class PTZAutomation(object):
 
     @current_index_preset.setter
     def current_index_preset(self, value):
+        if self._cycle_up:
+            self.cycles_passed += 1
+            self._cycle_up = False
         if value > self.len_path - 1:
             self.__current_index_preset = 0
-            self.cycles_passed += 1
+            self._cycle_up = True
         else:
             self.__current_index_preset = value
 
@@ -487,9 +491,9 @@ class PTZAutomation(object):
         if self.__current_work_mode == "preset":
             if time.time() - self.__last_ad_activity_ts > self.ad_timeout:
                 if not self.already_in_preset:
+                    self.set_preset(self.default_preset)
                     if self.color_now == 'Red':
                         self.cycles_passed += 1
-                    self.set_preset(self.default_preset)
                     self.already_in_preset = True
                     host.timeout(1000 * 15, self.preset)
                 else:
