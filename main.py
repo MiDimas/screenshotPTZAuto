@@ -403,8 +403,9 @@ class PTZAutomation(object):
 
     @property
     def patrol_path(self):
+        current = self.current_preset
         self.current_index_preset += 1
-        return self.current_preset
+        return current
 
     @property
     def already_in_preset(self):
@@ -432,6 +433,7 @@ class PTZAutomation(object):
             assert value, "Patrol path is empty"
             value = [int(v) for v in value.split(",")]
         self.len_path = len(value)
+        self.__patrol_path = value
         # self.__patrol_path = cycle(value)
         logger.debug("Set new patrol path: cycle(%r)", value)
 
@@ -441,7 +443,7 @@ class PTZAutomation(object):
 
     @current_index_preset.setter
     def current_index_preset(self, value):
-        if value >= self.len_path - 1:
+        if value > self.len_path - 1:
             self.__current_index_preset = 0
             self.cycles_passed += 1
         else:
