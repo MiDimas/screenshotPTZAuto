@@ -480,6 +480,8 @@ class PTZAutomation(object):
     def patrol(self):
         if self.__current_work_mode == "patrol":
             if time.time() - self.__last_ad_activity_ts > self.ad_timeout:
+                if self.already_in_preset:
+                    self.already_in_preset = False
                 self.set_preset(self.patrol_path)
                 timeout = self.get_timeout()
                 logger.debug("Go next preset after %s", timeout)
@@ -496,8 +498,8 @@ class PTZAutomation(object):
                         self.cycles_passed += 1
                     self.already_in_preset = True
                     host.timeout(1000 * 15, self.preset)
-                else:
-                    host.timeout(1000 * 15, self.preset)
+            else:
+                host.timeout(1000 * 15, self.preset)
 
     def do_nothing(self):
         pass
